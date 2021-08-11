@@ -79,6 +79,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushNamed(context, ChatScreen.id);
                       showSpinner = false;
                     } catch (e) {
+                      setState(() {
+                        showSpinner = false;
+                        showSnackBar(context, '$e');
+                      });
+
                       print(e);
                     }
                   }),

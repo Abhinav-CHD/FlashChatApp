@@ -84,6 +84,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         showSpinner = false;
                       });
                     } catch (e) {
+                      setState(() {
+                        showSpinner = false;
+                        showSnackBar(context, '$e');
+                      });
                       print(e);
                     }
                   })

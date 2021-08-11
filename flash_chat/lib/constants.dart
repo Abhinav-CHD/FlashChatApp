@@ -34,3 +34,12 @@ const kTextFieldDecoration = InputDecoration(
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );
+
+void showSnackBar(BuildContext context, String text) {
+  final snackBar = SnackBar(
+    content: Text(text),
+    duration: Duration(seconds: 5), //default is 4s
+  );
+  // Find the Scaffold in the widget tree and use it to show a SnackBar.
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
