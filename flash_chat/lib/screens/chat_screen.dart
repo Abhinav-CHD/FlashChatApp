@@ -31,30 +31,29 @@ class _ChatScreenState extends State<ChatScreen> {
       if (user == null) {
         print('User is currently signed out!');
       } else {
-        print('User is signed in!');
-
         loggedInUserEmail = _auth.currentUser!.email;
+        showSnackBar(context, '$loggedInUserEmail has signed in');
       }
     });
     // final user = await _auth.currentUser();
   }
+  //
+  // void getMessages() async {
+  //   final messages = await _firestore.collection('messages').get();
+  //   for (var message in messages.docs) {
+  //     print(message.data());
+  //     // // // print('\n');
+  //     // print(message);
+  //   }
+  // }
 
-  void getMessages() async {
-    final messages = await _firestore.collection('messages').get();
-    for (var message in messages.docs) {
-      print(message.data());
-      // // // print('\n');
-      // print(message);
-    }
-  }
-
-  void messageStream() async {
-    await for (var snapshots in _firestore.collection('messages').snapshots()) {
-      for (var message in snapshots.docs) {
-        print(message.data());
-      }
-    }
-  }
+  // void messageStream() async {
+  //   await for (var snapshots in _firestore.collection('messages').snapshots()) {
+  //     for (var message in snapshots.docs) {
+  //       print(message.data());
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                messageStream();
+                // messageStream();
 
                 _auth.signOut();
                 Navigator.pop(context);
@@ -90,16 +89,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: messageTextController,
                       onChanged: (value) {
                         messageText = value;
-                        messageTextController.clear();
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),
                   TextButton(
                     onPressed: () {
+                      messageTextController.clear();
                       _firestore.collection('messages').add({
                         'text': messageText,
-                        'sender': _auth.currentUser!.email
+                        'sender': _auth.currentUser!.email,
+                        "time": DateTime.now()
                       });
                     },
                     child: Text(
@@ -137,7 +137,7 @@ class MessagesStream extends StatelessWidget {
           for (var message in messages) {
             final messageText = (message.data() as dynamic)['text'];
             final messageSender = (message.data() as dynamic)['sender'];
-
+            final messageTime = (message.data() as dynamic)["time"];
             final currentUser = loggedInUserEmail;
 
             if (currentUser == messageSender) {
@@ -147,9 +147,11 @@ class MessagesStream extends StatelessWidget {
             final messageBubble = MessageBubble(
               sender: messageSender,
               text: messageText,
+              time: messageTime,
               isMe: currentUser == messageSender,
             );
             messageBubbles.add(messageBubble);
+            messageBubbles.sort((a, b) => b.time.compareTo(a.time));
           }
 
           return Expanded(
@@ -164,10 +166,15 @@ class MessagesStream extends StatelessWidget {
 }
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble({required this.sender, required this.text, required this.isMe});
+  MessageBubble(
+      {required this.sender,
+      required this.text,
+      required this.isMe,
+      required this.time});
 
   final String sender;
   final String text;
+  final Timestamp time;
   final bool isMe;
 
   @override

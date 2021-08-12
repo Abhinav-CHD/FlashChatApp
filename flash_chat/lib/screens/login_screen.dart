@@ -75,9 +75,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     try {
                       final newUser = await _auth.signInWithEmailAndPassword(
                           email: email, password: password);
+                      setState(() {
+                        showSpinner = false;
+                      });
 
                       Navigator.pushNamed(context, ChatScreen.id);
-                      showSpinner = false;
                     } catch (e) {
                       setState(() {
                         showSpinner = false;
